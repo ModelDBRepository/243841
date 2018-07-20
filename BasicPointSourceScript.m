@@ -1,17 +1,30 @@
+% This script file was written to calculate the extracellular voltages
+% along an axon to be used with sensory and motor axon files written in
+% Neuron. This was originally used in a full arm model of surface
+% electrical stimulation (Gaines 2018), and in that case very long axons
+% were needed. Neuron checks for an action potential in one node and that
+% is currently set as 20. Change the variable 'node2check' in the .hoc
+% files to adjust this.
+% There are several commented out sections that can be used to plot
+% different parameters at different nodes.
+% The start time of the stimulus is set at 50ms (delay variable in Neuron.
+% This is because there is a small depolarization that happens upon
+% initialization of the model and this delay allows the membrane potential
+% to stabilize.
+% The pulse width ('pw' variable) is currently set in Neuron as 100us.
+
 clear
 
-I=-.029;       %Injected current in mA
-d=400;    %micrometers perpendicular distance of the point source from the center of the axon.
-d2=0;       %z offset. In micrometers distance to the right of the node, parallel to the axon.  Negative number indicates left of the node.
-x=0;    %Could do an offset in the x direction
+I=-0.03;    %Injected current in mA
+d=400;      %micrometers perpendicular distance of the point source from the center of the axon.
+d2=0;       %z offset. In micrometers, distance to offset the stimulus along the axon. Default is centered over the center node.
+x=0;        %Could do an offset in the x direction
 
-number_nodes=161;
-PW = 0.01;
-fiberD=12;%um
+number_nodes=41;   %Odd number is best
+fiberD=12;  %um
 
 %Save variables for use by Neuron
 save num_nodes.dat number_nodes -ascii
-save PW.dat PW -ascii
 save fiberD.dat fiberD -ascii;
 
 n=1;%node width
@@ -69,7 +82,12 @@ stinsfinal=stins;%cat(2,stins,stins2);
 STIN=Vfinal(stinsfinal);
 save stins.dat STIN -ascii
 
-[status,result] = system('C:\nrn\bin\nrniv.exe -nobanner -nopython sensory_final.hoc -c quit()');
+% This needs to have the path to the neuron directory
+%Sensory axon model
+[status,result] = system('C:\nrn73w64\bin64\nrniv.exe -nobanner -nopython sensory_final.hoc -c quit()');
+
+%Motor axon model
+%[status,result] = system('C:\nrn73w64\bin64\nrniv.exe -nobanner -nopython motor_final.hoc -c quit()');
 fire=str2num(result(end-1))
 
 
